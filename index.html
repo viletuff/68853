@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Psychology Quiz App</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --background: #f9fafb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --success: #10b981;
+      --error: #ef4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                   Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: var(--primary-dark);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    .card {
+      background-color: var(--card);
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background-color: var(--text-light);
+    }
+
+    .file-input {
+      margin-bottom: 1rem;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background-color: #e5e7eb;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: 4px;
+      background-color: var(--primary);
+      transition: width 0.3s ease;
+    }
+
+    .stats {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .question {
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .option {
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option:hover {
+      background-color: #f3f4f6;
+    }
+
+    .option.selected {
+      border-color: var(--primary);
+      background-color: rgba(99, 102, 241, 0.1);
+    }
+
+    .option.correct {
+      border-color: var(--success);
+      background-color: rgba(16, 185, 129, 0.1);
+    }
+
+    .option.incorrect {
+      border-color: var(--error);
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    .feedback {
+      padding: 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .feedback.correct {
+      background-color: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--success);
+    }
+
+    .feedback.incorrect {
+      background-color: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--error);
+    }
+
+    .template-section {
+      background-color: #f3f4f6;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .results {
+      text-align: center;
+    }
+
+    .score {
+      font-size: 3rem;
+      font-weight: bold;
+      color: var(--primary-dark);
+      margin-bottom: 1rem;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="upload-screen">
+    <h1>Psychology Quiz App</h1>
+    
+    <div class="card">
+      <h2>Upload Your Quiz</h2>
+      <p>Upload a text file containing your quiz questions and answers.</p>
+      
+      <input type="file" id="quiz-file" accept=".txt" class="file-input">
+      <button id="start-btn" class="btn" disabled>Start Quiz</button>
+      
+      <div style="margin-top: 2rem;">
+        <h3>File Format Template</h3>
+        <p>Your quiz file should follow this format:</p>
+        <div class="template-section">Q: What is the correct term for the tendency to attribute one's own actions to external causes?
+O: Self-serving bias
+O: Fundamental attribution error
+O: Actor-observer bias
+O: Self-handicapping
+C: Self-serving bias
+E: The self-serving bias is a cognitive bias that causes people to attribute positive events to their own character but attribute negative events to external factors.
+
+Q: Which psychologist is known for the concept of "unconditional positive regard"?
+O: Sigmund Freud
+O: B.F. Skinner
+O: Carl Rogers
+O: Albert Bandura
+C: Carl Rogers
+E: Carl Rogers developed this concept as part of his person-centered therapy approach, emphasizing acceptance and support regardless of what the person says or does.
+
+// Continue with more questions...
+        </div>
+        <p>Format explanation:</p>
+        <ul>
+          <li><strong>Q:</strong> The question</li>
+          <li><strong>O:</strong> An option/answer choice (add multiple lines, one for each option)</li>
+          <li><strong>C:</strong> The correct answer (must match one of the options exactly)</li>
+          <li><strong>E:</strong> Explanation for the answer (shown after answering)</li>
+        </ul>
+        <p>Each question should be separated by a blank line.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="quiz-screen" class="hidden">
+    <h1>Psychology Quiz</h1>
+    
+    <div class="stats">
+      <div>Question: <span id="current-question">0</span>/<span id="total-questions">0</span></div>
+      <div>Correct: <span id="correct-count">0</span></div>
+    </div>
+    
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+    </div>
+    
+    <div class="card">
+      <div id="question" class="question"></div>
+      <div id="options" class="options"></div>
+      <div id="feedback" class="feedback"></div>
+      
+      <div class="actions">
+        <button id="prev-btn" class="btn btn-secondary" disabled>Previous</button>
+        <button id="next-btn" class="btn" disabled>Next</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="results-screen" class="hidden">
+    <h1>Quiz Results</h1>
+    
+    <div class="card results">
+      <h2>Your Score</h2>
+      <div class="score"><span id="final-score">0</span>%</div>
+      <p>You answered <span id="correct-answers">0</span> out of <span id="total-answers">0</span> questions correctly.</p>
+      
+      <button id="restart-btn" class="btn">Start New Quiz</button>
+    </div>
+  </div>
+
+  <script>
+    // DOM Elements
+    const uploadScreen = document.getElementById('upload-screen');
+    const quizScreen = document.getElementById('quiz-screen');
+    const resultsScreen = document.getElementById('results-screen');
+    const fileInput = document.getElementById('quiz-file');
+    const startBtn = document.getElementById('start-btn');
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const feedbackEl = document.getElementById('feedback');
+    const nextBtn = document.getElementById('next-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const currentQuestionEl = document.getElementById('current-question');
+    const totalQuestionsEl = document.getElementById('total-questions');
+    const correctCountEl = document.getElementById('correct-count');
+    const finalScoreEl = document.getElementById('final-score');
+    const correctAnswersEl = document.getElementById('correct-answers');
+    const totalAnswersEl = document.getElementById('total-answers');
+    const restartBtn = document.getElementById('restart-btn');
+
+    // Quiz state
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let userAnswers = [];
+    let correctAnswers = 0;
+
+    // Event listeners
+    fileInput.addEventListener('change', handleFileUpload);
+    startBtn.addEventListener('click', startQuiz);
+    nextBtn.addEventListener('click', goToNextQuestion);
+    prevBtn.addEventListener('click', goToPreviousQuestion);
+    restartBtn.addEventListener('click', resetQuiz);
+
+    // Functions
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          parseQuizFile(e.target.result);
+          startBtn.disabled = false;
+        } catch (error) {
+          alert('Error parsing quiz file: ' + error.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function parseQuizFile(content) {
+      questions = [];
+      const blocks = content.split(/\n\s*\n/); // Split by empty lines
+      
+      blocks.forEach(block => {
+        if (!block.trim()) return;
+        
+        const questionMatch = block.match(/Q:\s*(.*?)(?=\nO:|\n\s*O:)/s);
+        const optionsMatches = block.match(/O:\s*(.*?)(?=\nO:|\n\s*O:|\nC:|\n\s*C:)/gs);
+        const correctAnswerMatch = block.match(/C:\s*(.*?)(?=\nE:|\n\s*E:|$)/s);
+        const explanationMatch = block.match(/E:\s*(.*?)$/s);
+        
+        if (!questionMatch || !optionsMatches || !correctAnswerMatch) {
+          throw new Error('Invalid question format. Please check the template.');
+        }
+        
+        const question = questionMatch[1].trim();
+        const options = optionsMatches.map(opt => opt.replace(/O:\s*/, '').trim());
+        const correctAnswer = correctAnswerMatch[1].trim();
+        const explanation = explanationMatch ? explanationMatch[1].trim() : '';
+        
+        // Validate that the correct answer is in the options
+        if (!options.includes(correctAnswer)) {
+          throw new Error(`Correct answer "${correctAnswer}" is not in the options for question: "${question}"`);
+        }
+        
+        questions.push({
+          question,
+          options,
+          correctAnswer,
+          explanation
+        });
+      });
+      
+      if (questions.length === 0) {
+        throw new Error('No valid questions found in the file.');
+      }
+      
+      // Initialize user answers array
+      userAnswers = Array(questions.length).fill(null);
+    }
+
+    function startQuiz() {
+      uploadScreen.classList.add('hidden');
+      quizScreen.classList.remove('hidden');
+      
+      totalQuestionsEl.textContent = questions.length;
+      updateQuestionDisplay();
+    }
+
+    function updateQuestionDisplay() {
+      const question = questions[currentQuestionIndex];
+      currentQuestionEl.textContent = currentQuestionIndex + 1;
+      
+      // Update progress bar
+      const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+      progressBar.style.width = `${progress}%`;
+      
+      // Display question
+      questionEl.textContent = question.question;
+      
+      // Display options
+      optionsEl.innerHTML = '';
+      question.options.forEach((option, index) => {
+        const optionEl = document.createElement('div');
+        optionEl.className = 'option';
+        optionEl.textContent = option;
+        optionEl.dataset.index = index;
+        
+        // If user has already answered this question
+        if (userAnswers[currentQuestionIndex] !== null) {
+          if (option === userAnswers[currentQuestionIndex]) {
+            optionEl.classList.add('selected');
+            if (option === question.correctAnswer) {
+              optionEl.classList.add('correct');
+            } else {
+              optionEl.classList.add('incorrect');
+            }
+          } else if (option === question.correctAnswer) {
+            optionEl.classList.add('correct');
+          }
+        } else {
+          optionEl.addEventListener('click', () => selectOption(option));
+        }
+        
+        optionsEl.appendChild(optionEl);
+      });
+      
+      // Clear feedback
+      feedbackEl.style.display = 'none';
+      feedbackEl.className = 'feedback';
+      
+      // If user has already answered this question, show feedback
+      if (userAnswers[currentQuestionIndex] !== null) {
+        showFeedback();
+      }
+      
+      // Update button states
+      prevBtn.disabled = currentQuestionIndex === 0;
+      nextBtn.disabled = currentQuestionIndex === questions.length - 1 && userAnswers[currentQuestionIndex] === null;
+      
+      // If this is the last question and user has answered, enable the Next button to show results
+      if (currentQuestionIndex === questions.length - 1 && userAnswers[currentQuestionIndex] !== null) {
+        nextBtn.disabled = false;
+      }
+    }
+
+    function selectOption(selectedOption) {
+      const question = questions[currentQuestionIndex];
+      const isCorrect = selectedOption === question.correctAnswer;
+      
+      // Save user's answer
+      userAnswers[currentQuestionIndex] = selectedOption;
+      
+      // Update correct count
+      if (isCorrect) {
+        correctAnswers++;
+        correctCountEl.textContent = correctAnswers;
+      }
+      
+      // Update UI to show selected option and correct/incorrect
+      const options = optionsEl.querySelectorAll('.option');
+      options.forEach(option => {
+        const optionText = option.textContent;
+        
+        if (optionText === selectedOption) {
+          option.classList.add('selected');
+          if (isCorrect) {
+            option.classList.add('correct');
+          } else {
+            option.classList.add('incorrect');
+          }
+        } else if (optionText === question.correctAnswer) {
+          option.classList.add('correct');
+        }
+        
+        // Disable further clicks
+        option.replaceWith(option.cloneNode(true));
+      });
+      
+      // Show feedback
+      showFeedback();
+      
+      // Enable next button
+      nextBtn.disabled = currentQuestionIndex === questions.length - 1 && !allQuestionsAnswered();
+    }
+
+    function showFeedback() {
+      const question = questions[currentQuestionIndex];
+      const userAnswer = userAnswers[currentQuestionIndex];
+      const isCorrect = userAnswer === question.correctAnswer;
+      
+      feedbackEl.innerHTML = isCorrect
+        ? `<strong>Correct!</strong> ${question.explanation}`
+        : `<strong>Incorrect.</strong> The correct answer is: ${question.correctAnswer}<br><br>${question.explanation}`;
+      
+      feedbackEl.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+      feedbackEl.style.display = 'block';
+    }
+
+    function goToNextQuestion() {
+      if (currentQuestionIndex === questions.length - 1) {
+        showResults();
+        return;
+      }
+      
+      currentQuestionIndex++;
+      updateQuestionDisplay();
+    }
+
+    function goToPreviousQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        updateQuestionDisplay();
+      }
+    }
+
+    function allQuestionsAnswered() {
+      return userAnswers.every(answer => answer !== null);
+    }
+
+    function showResults() {
+      quizScreen.classList.add('hidden');
+      resultsScreen.classList.remove('hidden');
+      
+      const score = Math.round((correctAnswers / questions.length) * 100);
+      finalScoreEl.textContent = score;
+      correctAnswersEl.textContent = correctAnswers;
+      totalAnswersEl.textContent = questions.length;
+    }
+
+    function resetQuiz() {
+      resultsScreen.classList.add('hidden');
+      uploadScreen.classList.remove('hidden');
+      
+      // Reset state
+      questions = [];
+      currentQuestionIndex = 0;
+      userAnswers = [];
+      correctAnswers = 0;
+      
+      // Reset UI
+      fileInput.value = '';
+      startBtn.disabled = true;
+      correctCountEl.textContent = '0';
+    }
+  </script>
+</body>
+</html>
